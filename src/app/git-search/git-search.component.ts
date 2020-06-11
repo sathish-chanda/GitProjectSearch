@@ -1,6 +1,7 @@
 import { GitSearch } from '../git-search';
 import { GitSearchService } from '../git-search.service';
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute,ParamMap,Router } from '@angular/router';
 
 @Component({
   selector: 'app-git-search',
@@ -10,15 +11,21 @@ import { Component, OnInit } from '@angular/core';
 export class GitSearchComponent implements OnInit {
   searchResult: GitSearch;
   searchQuery: string;
-  constructor(private GitSearchService: GitSearchService) { }
+  title: string;
+  displayQuery: string;
+
+  constructor(private GitSearchService: GitSearchService, private route: ActivatedRoute, private router : Router) { }
 
   ngOnInit(): void {
-    this.GitSearchService.gitSearch('java').then((response) => {
-      console.log(response);
-      this.searchResult = response;
-    },(error) => {
-      alert("Error: " + error.statusText);
+    this.route.paramMap.subscribe((param : ParamMap) => {
+      this.searchQuery = param.get('query');
+      this.displayQuery = param.get('query');
+      this.gitSearch();
     })
+    this.route.data.subscribe((result) => {
+         this.title = result.title;
+    });
+
   }
 
   gitSearch = () => {
@@ -27,6 +34,11 @@ export class GitSearchComponent implements OnInit {
     },(error) => {
       alert("Error: " + error.statusText);
     })
+  }
+
+  sendQuery = () => {
+    this.searchResult = null;
+    this.router.navigate(['/search/'+this.searchQuery]);
   }
 
 }
